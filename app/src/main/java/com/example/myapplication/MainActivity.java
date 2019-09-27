@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Process;
 import android.os.SystemClock;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_list);
 
+
         mAB = getSupportActionBar();
         mAB.setTitle("p2p");
 
@@ -88,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
             @Override
             public void onClick(View view) {
                 mConnector.mWrite("escr"+chatView.getInputText());
+
 
             }
         });
@@ -123,20 +127,15 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
 
             if(texto.contains("buffer") ) {
                 //Toast.makeText(this, "Splitiando mensaje", Toast.LENGTH_SHORT).show();
-                msg = texto.split("buffer");
-                if (msg.length > 1){
-                    mAB.setTitle(msg[1].split("mensajeRecibido")[0]);
-                    //SystemClock.sleep(500);
-                }
-                texto = "";
+
             }
 
-                //Inicio de dispositivo
-                if(texto.contains("Suceso")) {
-                    mAB.setTitle("Dispositivo Iniciado");
-                    //SystemClock.sleep(500);
-                    texto = "";
-                }
+            //Inicio de dispositivo
+            if(texto.contains("Suceso")) {
+                mAB.setTitle("Dispositivo Iniciado");
+                //SystemClock.sleep(500);
+                texto = "";
+            }
 
             //Inicio de dispositivo
             if(texto.contains("retry")) {
@@ -174,8 +173,13 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                 //Mensaje recibido
                 if(texto.contains("mensajeRecibido")) {
                     //Toast.makeText(this, "Mensajes recibidos . .", Toast.LENGTH_LONG).show();
-                    mAB.setTitle("Intentando de nuevo ..");
-                    //SystemClock.sleep(500);
+                    msg = texto.split("buffer");
+                    if (msg.length > 1){
+
+                        chatView.receive(new Message.Builder().setUser(you).setRight(false).setText(msg[1].split("mensajeRecibido")[0]).build());
+                        //SystemClock.sleep(500);
+                    }
+                    mAB.setTitle("Mensaje Recibido ... ");
                     texto = "";
                 }
 
@@ -277,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
 
         mAB.setTitle("Dispositivo desconectado");
         Toast.makeText(this, "Dispositivo desconectado", Toast.LENGTH_SHORT).show();
-        finish();
+        //finish();
         
     }
 
@@ -304,4 +308,5 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
     }
 
 
+   
 }
