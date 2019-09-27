@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -171,11 +172,34 @@ public class USBSerialConnector implements SerialInputOutputManager.Listener {
         }
     }
 
+    public void mWrite(String str) {
+
+        if(serialPort != null){
+
+            try {
+                serialPort.write(str.getBytes(),100);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else {
+            usbSerialListener.onErrorReceived("Null SerialIOManager");
+        }
+
+        /*try {
+            serialPort.write(str.getBytes(),100);
+        } catch (IOException e) {
+            Toast.makeText(mContext, "error en comunicacion", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }*/
+
+    }
+
     public void write(byte[] data, int timeoutMillis) {
         handlerTimeOut = new Handler();
         if (serialIOManager != null) {
             serialIOManager.writeAsync(data);
             handlerTimeOut.postDelayed(timeOutRunnable, timeoutMillis);
+
         } else {
             usbSerialListener.onErrorReceived("Null SerialIOManager");
         }
@@ -205,6 +229,8 @@ public class USBSerialConnector implements SerialInputOutputManager.Listener {
         //removeTimeOutCallbacks();
         usbSerialListener.onErrorReceived("onRunError: " + Utilities.getStackTrace(e));
     }
+
+
 
     private class SetUsbSerialDriver extends AsyncTask<Integer, Void, Boolean> {
         @Override
