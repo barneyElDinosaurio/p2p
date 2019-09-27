@@ -4,6 +4,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.method.ScrollingMovementMethod;
@@ -17,6 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.bassaer.chatmessageview.model.ChatUser;
+import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
 
 
@@ -37,6 +41,24 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
     ChatView chatView;
 
 
+    //Users///////////////////////
+    //User id
+    int myId ;
+    //User icon
+    Bitmap myIcon;
+    //User name
+    String myName;
+
+    int yourId;
+    Bitmap yourIcon ;
+    String yourName ;
+
+    ChatUser me;
+    ChatUser you;
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
         setContentView(R.layout.activity_message_list);
 
         mAB = getSupportActionBar();
+        mAB.setTitle("p2p");
 
         mConnector = USBSerialConnector.getInstance();
 
@@ -53,8 +76,34 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
         //userText = (TextView) findViewById(R.id.usertext);
         //userText.setVisibility(View.GONE);//hiden help
 
+        //Users///////////////////////
+        //User id
+        myId = 0;
+        //User icon
+         myIcon = BitmapFactory.decodeResource(getResources(), R.drawable.face_2);
+        //User name
+         myName = "Marco";
+
+         yourId = 1;
+         yourIcon = BitmapFactory.decodeResource(getResources(), R.drawable.face_1);
+         yourName = "El flaco";
+
+         me = new ChatUser(myId, myName, myIcon);
+         you = new ChatUser(yourId,yourName, yourIcon);;
+
+
         //creating chat view
         chatView = (ChatView) findViewById(R.id.chat_view);
+
+
+
+        chatView.setOnClickSendButtonListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mConnector.mWrite("escr"+chatView.getInputText());
+                chatView.setInputText("");
+            }
+        });
 
         //    rxText = (TextView) findViewById(R.id.rxText);
 
@@ -116,54 +165,53 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
 
 
             if(texto.contains("buffer") ) {
-                Toast.makeText(this, "Splitiando mensaje", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Splitiando mensaje", Toast.LENGTH_SHORT).show();
                 msg = texto.split("buffer");
                 if (msg.length > 1){
                     //Toast.makeText(this, msg[1], Toast.LENGTH_SHORT).show();
                     //Toast.makeText(this, msg[1].split("mensajeRecibido")[0], Toast.LENGTH_SHORT).show();
-                    userText.setText("");
-                    userText.setText(msg[1].split("mensajeRecibido")[0]);
+                    //userText.setText("");
+                    //userText.setText(msg[1].split("mensajeRecibido")[0]);
                     mAB.setTitle(msg[1].split("mensajeRecibido")[0]);
-
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                 }
                 //texto = "";
             }
 
                 //Inicio de dispositivo
                 if(texto.contains("Suceso")) {
-                    Toast.makeText(this, "Dispositivo Iniciado", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "Dispositivo Iniciado", Toast.LENGTH_SHORT).show();
 //                    userText.setText("");
   //                  userText.setText("Dispositivo Iniciado");
                     mAB.setTitle("Dispositivo Iniciado");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
             //Inicio de dispositivo
             if(texto.contains("retry")) {
-                Toast.makeText(this, "Intentando de nuevo", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Intentando de nuevo", Toast.LENGTH_SHORT).show();
                 //userText.setText("");
                 //userText.setText("Intentando de nuevo .. ");
                 mAB.setTitle("Intentando de nuevo ..");
 
-                SystemClock.sleep(2000);
+                SystemClock.sleep(500);
                 texto = "";
             }
 
                 //Leyendo
                 if(texto.contains("leyendo")) {
-                    Toast.makeText(this, "Leyendo mensajes ...", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "Leyendo mensajes ...", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Leyendo mensajes ...");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
                 //Escribiendo
                 if(texto.contains("escribiendo")) {
-                    Toast.makeText(this, "Intentando escribir mensaje ...", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "Intentando escribir mensaje ...", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Intentando escribir mensaje ...");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
@@ -171,15 +219,16 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                 if(texto.contains("MensajEnviado")) {
                     Toast.makeText(this, "Mensaje enviado...", Toast.LENGTH_LONG).show();
                     mAB.setTitle("Mensaje enviado...");
-                    SystemClock.sleep(2000);
+                    chatView.send(new Message.Builder().setUser(me).setRight(true).setText(chatView.getInputText()).build());
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
                 //Mensaje recibido
                 if(texto.contains("mensajeRecibido")) {
-                    Toast.makeText(this, "Mensajes recibidos . .", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(this, "Mensajes recibidos . .", Toast.LENGTH_LONG).show();
                     mAB.setTitle("Intentando de nuevo ..");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
@@ -188,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                 if(texto.contains("sendSBDTextFailed")) {
                     Toast.makeText(this, "ERROR al enviar mensaje!!! X!", Toast.LENGTH_LONG).show();
                     mAB.setTitle("ERROR al enviar mensaje!!! X!");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
@@ -196,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                 if(texto.contains("ReceiveSBDTextfailed")) {
                     Toast.makeText(this, "ERROR al intentar leer el mensaje!!", Toast.LENGTH_LONG).show();
                     mAB.setTitle("ERROR al intentar leer el mensaje!!");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
@@ -208,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                 if(texto.contains("SignalQualityfailed")) {
                     Toast.makeText(this, "Error de señal", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Error de señal");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
@@ -216,42 +265,42 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                 if(texto.contains("CSQ:0")) {
                     Toast.makeText(this, "Sin Señal", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Sin Señal");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
                 if(texto.contains("CSQ:1")) {
                     Toast.makeText(this, "Señal 1", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Señal 1 ");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
                 if(texto.contains("CSQ:2")) {
                     Toast.makeText(this, "Señal 2", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Señal 2");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
                 if(texto.contains("CSQ:3")) {
                     Toast.makeText(this, "Señal 3", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Señal 3");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
                 if(texto.contains("CSQ:4")) {
                     Toast.makeText(this, "Señal 4", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Señal 4");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
                 if(texto.contains("CSQ:5")) {
                     Toast.makeText(this, "Señal 5", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Señal 5");
-                    SystemClock.sleep(2000);
+                    SystemClock.sleep(500);
                     texto = "";
                 }
 
@@ -274,6 +323,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
 
     @Override
     public void onDeviceReady(ResponseStatus responseStatus) {
+        mAB.setTitle("Esperando dispositivo");
         //txText.setEnabled(true);
         //rxText.setEnabled(true);
         //send.setEnabled(true);
@@ -283,8 +333,8 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
     @Override
     public void onDeviceDisconnected() {
 
-
-//        Toast.makeText(this, String.valueOf(msg.length), Toast.LENGTH_SHORT).show();
+        mAB.setTitle("Dispositivo desconectado");
+        Toast.makeText(this, "Dispositivo desconectado", Toast.LENGTH_SHORT).show();
 //        for(String spliteo:msg) Toast.makeText(this, spliteo, Toast.LENGTH_SHORT).show();
         finish();
         
