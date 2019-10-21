@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
     ChatUser me;
     ChatUser you;
 
+    boolean btn = false;
 
 
 
@@ -72,11 +73,11 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
         //User icon
          myIcon = BitmapFactory.decodeResource(getResources(), R.drawable.face_2);
         //User name
-         myName = "Marco";
+         myName = "Elio";
 
          yourId = 1;
          yourIcon = BitmapFactory.decodeResource(getResources(), R.drawable.face_1);
-         yourName = "El flaco";
+         yourName = "Cami";
 
          me = new ChatUser(myId, myName, myIcon);
          you = new ChatUser(yourId,yourName, yourIcon);;
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
             @Override
             public void onClick(View view) {
                 mConnector.mWrite("escr"+chatView.getInputText());
+                btn = true;
 
 
             }
@@ -115,6 +117,19 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
     }
 
 
+    public static String hexToAscii(String hexStr) {
+        StringBuilder output = new StringBuilder("");
+
+        for (int i = 0; i < hexStr.length(); i += 2) {
+            String str = hexStr.substring(i, i + 2);
+            output.append((char) Integer.parseInt(str, 16));
+        }
+
+        return output.toString();
+    }
+
+
+
     String msg[];
     //Serial Receiver Methods
     @Override
@@ -123,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
 
             texto = texto + Utilities.bytesToString(data);
 
-            //////////////////////////////CONDICIONES///////////////////////////////////////////////
+            //////////////////////////////BANDERASOS///////////////////////////////////////////////
 
             if(texto.contains("buffer") ) {
                 //Toast.makeText(this, "Splitiando mensaje", Toast.LENGTH_SHORT).show();
@@ -170,13 +185,14 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                     texto = "";
                 }
 
+
                 //Mensaje recibido
                 if(texto.contains("mensajeRecibido")) {
                     //Toast.makeText(this, "Mensajes recibidos . .", Toast.LENGTH_LONG).show();
-                    msg = texto.split("buffer");
+                    msg = texto.split("buffersizeis");
                     if (msg.length > 1){
-
-                        chatView.receive(new Message.Builder().setUser(you).setRight(false).setText(msg[1].split("mensajeRecibido")[0]).build());
+                        String mensaje = msg[1].split("mensajeRecibido")[0];
+                        chatView.receive(new Message.Builder().setUser(you).setRight(false).setText(hexToAscii(mensaje)).build());
                         //SystemClock.sleep(500);
                     }
                     mAB.setTitle("Mensaje Recibido ... ");
@@ -248,7 +264,17 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                 if(texto.contains("CSQ:5")) {
                     Toast.makeText(this, "Señal 5", Toast.LENGTH_SHORT).show();
                     mAB.setTitle("Señal 5");
-                    //SystemClock.sleep(500);
+                   /* if(btn == true){
+                        SystemClock.sleep(10000);
+                        Toast.makeText(this, "Mensaje enviado...", Toast.LENGTH_LONG).show();
+                        mAB.setTitle("Mensaje enviado...");
+                        chatView.send(new Message.Builder().setUser(me).setRight(true).setText(chatView.getInputText()).build());
+                        chatView.setInputText("");
+                        //SystemClock.sleep(500);
+                        texto = "";
+
+                    }
+               */     //SystemClock.sleep(500);
                     texto = "";
                 }
 
@@ -308,5 +334,4 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
     }
 
 
-   
 }
