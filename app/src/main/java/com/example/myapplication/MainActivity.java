@@ -4,6 +4,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.os.CountDownTimer;
 import android.os.Process;
 import android.os.SystemClock;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +26,10 @@ import android.widget.Toast;
 import com.github.bassaer.chatmessageview.model.ChatUser;
 import com.github.bassaer.chatmessageview.model.Message;
 import com.github.bassaer.chatmessageview.view.ChatView;
+import com.kazakago.cryptore.CipherAlgorithm;
+import com.kazakago.cryptore.Cryptore;
+import com.kazakago.cryptore.DecryptResult;
+import com.kazakago.cryptore.EncryptResult;
 
 
 public class MainActivity extends AppCompatActivity implements USBSerialListener{
@@ -52,6 +58,18 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
     ChatUser you;
 
     boolean btn = false;
+
+
+    private enum Alias {
+        RSA("CIPHER_RSA"),
+        AES("CIPHER_AES");
+
+        String value;
+
+        Alias(String value) {
+            this.value = value;
+        }
+    }
 
 
 
@@ -192,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements USBSerialListener
                     msg = texto.split("buffersizeis");
                     if (msg.length > 1){
                         String mensaje = msg[1].split("mensajeRecibido")[0];
+                        mensaje = mensaje.substring(7);//quitando los primeros 7 caracteres
                         chatView.receive(new Message.Builder().setUser(you).setRight(false).setText(hexToAscii(mensaje)).build());
                         //SystemClock.sleep(500);
                     }
